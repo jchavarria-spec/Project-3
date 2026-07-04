@@ -1,0 +1,19 @@
+{
+  "name": "fieldbook",
+  "version": "1.0.0",
+  "private": true,
+  "description": "FieldBook — scheduling & booking platform for local service businesses",
+  "scripts": {
+    "dev": "concurrently -n api,web -c blue,green \"npm run dev --workspace server\" \"npm run dev --workspace client\"",
+    "build": "npm run build --workspace client",
+    "start": "npm start --workspace server",
+    "db:up": "docker compose up -d db"
+  },
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
