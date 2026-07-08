@@ -197,6 +197,7 @@ router.patch('/:id', async (req, res, next) => {
       const cust = await query('SELECT * FROM customers WHERE id = $1', [job.customer_id]);
       if (biz.rows[0]?.review_requests_enabled && cust.rows[0]) {
         await query('UPDATE jobs SET review_request_sent = TRUE WHERE id = $1', [job.id]);
+        job.review_request_sent = true; // keep the response in sync with the DB
         sendReviewRequest({ business: biz.rows[0], customer: cust.rows[0], job }).catch((e) =>
           console.error('review request failed:', e.message)
         );
