@@ -20,6 +20,15 @@ export async function api(path, { method = 'GET', body, auth = true } = {}) {
     /* empty body */
   }
   if (!res.ok) {
+    // An authenticated request rejected with 401 means our stored session is
+    // expired/invalid. Clear it and bounce to login instead of leaving the
+    // user stranded on error boxes.
+    if (res.status === 401 && auth && token) {
+      clearToken();
+      if (!window.location.pathname.startsWith('/login')) {
+        window.location.assign('/login');
+      }
+    }
     const err = new Error(data?.error || `Request failed (${res.status})`);
     err.status = res.status;
     throw err;
