@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Last Fare Stripboard</title>
+<style>
+  :root {
+    --bg: #f4f1ea; --panel: #fffdf8; --ink: #1d1b18; --muted: #6b665d; --line: #d8d2c4;
+    --int-day: #ffffff; --ext-day: #fff3a6; --int-night: #bcd5f5; --ext-night: #bfe6c4; --dawn-dusk: #f9c9d6;
+    --strip-ink: #1d1b18; --chip: #1d1b18; --chip-ink: #fffdf8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #161513; --panel: #201f1c; --ink: #ece8df; --muted: #a39d92; --line: #3a3732;
+      --chip: #ece8df; --chip-ink: #161513;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #161513; --panel: #201f1c; --ink: #ece8df; --muted: #a39d92; --line: #3a3732;
+    --chip: #ece8df; --chip-ink: #161513;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 15px/1.45 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 1100px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font: 700 30px/1.1 "Courier Prime", "Courier New", monospace; margin: 0 0 4px; letter-spacing: .02em; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); margin: 40px 0 12px; }
+  .sub { color: var(--muted); margin: 0 0 20px; }
+  .stats { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
+  .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 16px; min-width: 110px; }
+  .stat b { display: block; font-size: 22px; font-variant-numeric: tabular-nums; }
+  .stat span { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+  .controls button { font: inherit; font-size: 13px; padding: 6px 12px; border-radius: 6px; cursor: pointer;
+                      border: 1px solid var(--line); background: var(--panel); color: var(--ink); }
+  .controls button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: var(--muted); margin-left: auto; }
+  .legend i { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: -3px; margin-right: 5px; border: 1px solid rgba(0,0,0,.25); }
+  .board { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+  table { border-collapse: separate; border-spacing: 0 3px; width: 100%; min-width: 760px; padding: 0 3px; }
+  th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted);
+        padding: 10px 10px 4px; font-weight: 600; }
+  .strip td { padding: 8px 10px; color: var(--strip-ink); border-top: 1px solid rgba(0,0,0,.18); border-bottom: 1px solid rgba(0,0,0,.18); vertical-align: top; }
+  .strip td:first-child { border-left: 1px solid rgba(0,0,0,.18); border-radius: 4px 0 0 4px; }
+  .strip td:last-child { border-right: 1px solid rgba(0,0,0,.18); border-radius: 0 4px 4px 0; }
+  .int-day td, header.int-day { background: var(--int-day); }
+  .ext-day td, header.ext-day { background: var(--ext-day); }
+  .int-night td, header.int-night { background: var(--int-night); }
+  .ext-night td, header.ext-night { background: var(--ext-night); }
+  .dawn-dusk td, header.dawn-dusk { background: var(--dawn-dusk); }
+  .cast { white-space: nowrap; }
+  .num { font: 700 18px "Courier New", monospace; width: 44px; text-align: center; }
+  .ie, .tod { font: 600 12px "Courier New", monospace; white-space: nowrap; }
+  .set strong { font-family: "Courier New", monospace; }
+  .syn { font-size: 12px; opacity: .75; margin-top: 2px; }
+  .pg { font: 700 14px "Courier New", monospace; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .cid { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%;
+          background: #1d1b18; color: #fffdf8; font-size: 11px; font-weight: 700; margin: 0 3px 3px 0; }
+  .props span { display: inline-block; font-size: 12px; padding: 1px 7px; margin: 0 4px 4px 0; border-radius: 10px;
+                 background: rgba(0,0,0,.08); }
+  .props .ref { font-style: italic; background: transparent; border: 1px dashed rgba(0,0,0,.3); }
+  .props .veh { background: rgba(0,0,0,.75); color: #fff; }
+  tr.daybreak td { background: #1d1b18; color: #fffdf8; font: 700 12px "Courier New", monospace; text-align: center;
+                    letter-spacing: .1em; padding: 5px; border-radius: 4px; }
+  .castlist { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+  .castlist li { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; gap: 8px; }
+  .castlist .cid { background: var(--chip); color: var(--chip-ink); margin: 0; }
+  .castlist em { margin-left: auto; color: var(--muted); font-size: 12px; font-style: normal; }
+  .sheets { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+  .sheet { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .sheet header { color: #1d1b18; padding: 8px 12px; font: 600 13px "Courier New", monospace; display: flex; gap: 8px; border-bottom: 1px solid rgba(0,0,0,.15); }
+  .sheet header span { margin-left: auto; white-space: nowrap; }
+  .sheet dl { margin: 0; padding: 10px 12px; display: grid; grid-template-columns: 80px 1fr; gap: 4px 10px; font-size: 13px; }
+  .sheet dt { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; padding-top: 2px; }
+  .sheet dd { margin: 0; }
+  footer { margin-top: 40px; color: var(--muted); font-size: 12px; }
+  @media print { .controls button { display: none; } body { background: #fff; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>The Last Fare</h1>
+  <p class="sub">Production breakdown &amp; stripboard</p>
+
+  <div class="stats">
+    <div class="stat"><b>5</b><span>Scenes</span></div>
+    <div class="stat"><b>3 1/8</b><span>Pages</span></div>
+    <div class="stat"><b>4</b><span>Cast</span></div>
+    <div class="stat"><b>5</b><span>Sets</span></div>
+  </div>
+
+  <div class="controls">
+    <button type="button" data-sort="scene" aria-pressed="true">Script order</button>
+    <button type="button" data-sort="loc" aria-pressed="false">Group by set</button>
+    <button type="button" data-sort="time" aria-pressed="false">Group by INT/EXT · time</button>
+    <div class="legend">
+      <span><i style="background:var(--int-day)"></i>Int · Day</span>
+      <span><i style="background:var(--ext-day)"></i>Ext · Day</span>
+      <span><i style="background:var(--int-night)"></i>Int · Night</span>
+      <span><i style="background:var(--ext-night)"></i>Ext · Night</span>
+      <span><i style="background:var(--dawn-dusk)"></i>Dawn / Dusk</span>
+    </div>
+  </div>
+
+  <div class="board">
+    <table>
+      <thead><tr><th>Sc</th><th>I/E</th><th>Set · synopsis</th><th>D/N</th><th>Pages</th><th>Cast</th><th>Props &amp; vehicles</th></tr></thead>
+      <tbody id="strips">
+      <tr class="strip int-night" data-scene="1" data-loc="ALL-NIGHT DINER" data-time="NIGHT" data-ie="INT">
+        <td class="num">1</td>
+        <td class="ie">INT</td>
+        <td class="set"><strong>ALL-NIGHT DINER</strong><div class="syn">Rain streaks the windows.</div></td>
+        <td class="tod">NIGHT</td>
+        <td class="pg">1 1/8</td>
+        <td class="cast"><span class="cid" title="MARISOL">1</span> <span class="cid" title="LOU">2</span> <span class="cid" title="DEV">3</span></td>
+        <td class="props"><span>Chipped Mug</span><span>Taxi Keys</span><span>Dish Towel</span><span>Coffee Pot</span><span>Manila Envelope</span><span>Wristwatch</span><span>Cash</span></td>
+      </tr>
+      <tr class="strip ext-night" data-scene="2" data-loc="DINER PARKING LOT" data-time="NIGHT" data-ie="EXT">
+        <td class="num">2</td>
+        <td class="ie">EXT</td>
+        <td class="set"><strong>DINER PARKING LOT</strong><div class="syn">Puddles shimmer under a flickering streetlight.</div></td>
+        <td class="tod">NIGHT</td>
+        <td class="pg">2/8</td>
+        <td class="cast"><span class="cid" title="MARISOL">1</span> <span class="cid" title="LOU">2</span> <span class="cid" title="DEV">3</span></td>
+        <td class="props"><span class="ref" title="Referenced, tagged in another scene">Manila Envelope</span><span class="veh">Taxi</span></td>
+      </tr>
+      <tr class="strip int-night" data-scene="3" data-loc="TAXI - MOVING" data-time="NIGHT" data-ie="INT">
+        <td class="num">3</td>
+        <td class="ie">INT</td>
+        <td class="set"><strong>TAXI - MOVING</strong><div class="syn">Wipers thump a steady rhythm.</div></td>
+        <td class="tod">NIGHT</td>
+        <td class="pg">7/8</td>
+        <td class="cast"><span class="cid" title="MARISOL">1</span> <span class="cid" title="DEV">3</span></td>
+        <td class="props"><span>Rearview Mirror</span><span class="ref" title="Referenced, tagged in another scene">Manila Envelope</span><span class="veh">Taxi</span></td>
+      </tr>
+      <tr class="strip dawn-dusk" data-scene="4" data-loc="TAXI - PARKED" data-time="DAWN" data-ie="INT">
+        <td class="num">4</td>
+        <td class="ie">INT</td>
+        <td class="set"><strong>TAXI - PARKED</strong><div class="syn">The meter reads $47.50.</div></td>
+        <td class="tod">DAWN</td>
+        <td class="pg">3/8</td>
+        <td class="cast"><span class="cid" title="MARISOL">1</span> <span class="cid" title="DEV">3</span></td>
+        <td class="props"><span>Meter</span><span class="veh">Taxi</span></td>
+      </tr>
+      <tr class="strip dawn-dusk" data-scene="5" data-loc="HARBOR BRIDGE" data-time="DAWN" data-ie="EXT">
+        <td class="num">5</td>
+        <td class="ie">EXT</td>
+        <td class="set"><strong>HARBOR BRIDGE</strong><div class="syn">Wind off the water.</div></td>
+        <td class="tod">DAWN</td>
+        <td class="pg">4/8</td>
+        <td class="cast"><span class="cid" title="MARISOL">1</span> <span class="cid" title="DEV">3</span> <span class="cid" title="OLD MAN">4</span></td>
+        <td class="props"><span>Towel</span><span>Radio Handset</span><span class="ref" title="Referenced, tagged in another scene">Manila Envelope</span><span class="veh">Taxi</span></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Cast</h2>
+  <ul class="castlist"><li><span class="cid">1</span>Marisol<em>5 sc · 3 1/8 pg</em></li><li><span class="cid">2</span>Lou<em>2 sc · 1 3/8 pg</em></li><li><span class="cid">3</span>Dev<em>5 sc · 3 1/8 pg</em></li><li><span class="cid">4</span>Old Man<em>1 sc · 4/8 pg</em></li></ul>
+
+  <h2>Breakdown sheets</h2>
+  <div class="sheets">
+      <article class="sheet">
+        <header class="int-night"><b>Scene 1</b> INT. ALL-NIGHT DINER - NIGHT <span>1 1/8 pg</span></header>
+        <dl>
+          <dt>Synopsis</dt><dd>Rain streaks the windows.</dd>
+          <dt>Cast</dt><dd>Marisol, Lou, Dev</dd>
+          <dt>Props</dt><dd>Chipped Mug, Taxi Keys, Dish Towel, Coffee Pot, Manila Envelope, Wristwatch, Cash</dd>
+          <dt>Vehicles</dt><dd>—</dd>
+        </dl>
+      </article>
+      <article class="sheet">
+        <header class="ext-night"><b>Scene 2</b> EXT. DINER PARKING LOT - NIGHT <span>2/8 pg</span></header>
+        <dl>
+          <dt>Synopsis</dt><dd>Puddles shimmer under a flickering streetlight.</dd>
+          <dt>Cast</dt><dd>Marisol, Lou, Dev</dd>
+          <dt>Props</dt><dd>Manila Envelope</dd>
+          <dt>Vehicles</dt><dd>Taxi</dd>
+        </dl>
+      </article>
+      <article class="sheet">
+        <header class="int-night"><b>Scene 3</b> INT. TAXI - MOVING - NIGHT <span>7/8 pg</span></header>
+        <dl>
+          <dt>Synopsis</dt><dd>Wipers thump a steady rhythm.</dd>
+          <dt>Cast</dt><dd>Marisol, Dev</dd>
+          <dt>Props</dt><dd>Rearview Mirror, Manila Envelope</dd>
+          <dt>Vehicles</dt><dd>Taxi</dd>
+        </dl>
+      </article>
+      <article class="sheet">
+        <header class="dawn-dusk"><b>Scene 4</b> INT. TAXI - PARKED - DAWN <span>3/8 pg</span></header>
+        <dl>
+          <dt>Synopsis</dt><dd>The meter reads $47.50.</dd>
+          <dt>Cast</dt><dd>Marisol, Dev</dd>
+          <dt>Props</dt><dd>Meter</dd>
+          <dt>Vehicles</dt><dd>Taxi</dd>
+        </dl>
+      </article>
+      <article class="sheet">
+        <header class="dawn-dusk"><b>Scene 5</b> EXT. HARBOR BRIDGE - DAWN <span>4/8 pg</span></header>
+        <dl>
+          <dt>Synopsis</dt><dd>Wind off the water.</dd>
+          <dt>Cast</dt><dd>Marisol, Dev, Old Man</dd>
+          <dt>Props</dt><dd>Towel, Radio Handset, Manila Envelope</dd>
+          <dt>Vehicles</dt><dd>Taxi</dd>
+        </dl>
+      </article>
+  </div>
+
+  <footer>Page lengths are estimated in eighths (55 formatted lines per page). Dashed props are mentions of an item tagged in another scene.</footer>
+</main>
+<script>
+  const body = document.getElementById('strips');
+  const strips = [...body.querySelectorAll('tr.strip')];
+  const timeRank = t => { const o = ["DAY", "MORNING", "AFTERNOON", "DAWN", "DUSK", "EVENING", "NIGHT"]; const i = o.indexOf(t); return i < 0 ? o.length : i; };
+  const keyFns = {
+    scene: r => [+r.dataset.scene],
+    loc:   r => [r.dataset.loc, +r.dataset.scene],
+    time:  r => [r.dataset.ie, timeRank(r.dataset.time), r.dataset.loc, +r.dataset.scene],
+  };
+  const cmp = (a, b) => { for (let i = 0; i < a.length; i++) { if (a[i] < b[i]) return -1; if (a[i] > b[i]) return 1; } return 0; };
+  function arrange(mode) {
+    body.querySelectorAll('tr.daybreak').forEach(r => r.remove());
+    const sorted = strips.slice().sort((a, b) => cmp(keyFns[mode](a), keyFns[mode](b)));
+    let group = null;
+    sorted.forEach(r => {
+      const g = mode === 'loc' ? r.dataset.loc : mode === 'time' ? r.dataset.ie + ' · ' + r.dataset.time : null;
+      if (g !== null && g !== group) {
+        group = g;
+        const hdr = document.createElement('tr');
+        hdr.className = 'daybreak';
+        hdr.innerHTML = '<td colspan="7"></td>';
+        hdr.firstChild.textContent = g;
+        body.appendChild(hdr);
+      }
+      body.appendChild(r);
+    });
+    document.querySelectorAll('[data-sort]').forEach(b => b.setAttribute('aria-pressed', b.dataset.sort === mode));
+  }
+  document.querySelectorAll('[data-sort]').forEach(b => b.addEventListener('click', () => arrange(b.dataset.sort)));
+</script>
+</body>
+</html>
