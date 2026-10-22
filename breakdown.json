@@ -1,0 +1,147 @@
+{
+  "title": "The Last Fare",
+  "total_eighths": 25,
+  "total_pages": "3 1/8",
+  "cast": [
+    {
+      "id": 1,
+      "name": "MARISOL"
+    },
+    {
+      "id": 2,
+      "name": "LOU"
+    },
+    {
+      "id": 3,
+      "name": "DEV"
+    },
+    {
+      "id": 4,
+      "name": "OLD MAN"
+    }
+  ],
+  "scenes": [
+    {
+      "number": 1,
+      "heading": "INT. ALL-NIGHT DINER - NIGHT",
+      "int_ext": "INT",
+      "location": "ALL-NIGHT DINER",
+      "time": "NIGHT",
+      "synopsis": "Rain streaks the windows.",
+      "characters": [
+        "MARISOL",
+        "LOU",
+        "DEV"
+      ],
+      "props": [
+        "CHIPPED MUG",
+        "TAXI KEYS",
+        "DISH TOWEL",
+        "COFFEE POT",
+        "MANILA ENVELOPE",
+        "WRISTWATCH",
+        "CASH"
+      ],
+      "props_referenced": [],
+      "vehicles": [],
+      "eighths": 9,
+      "pages": "1 1/8",
+      "strip": "int-night"
+    },
+    {
+      "number": 2,
+      "heading": "EXT. DINER PARKING LOT - NIGHT",
+      "int_ext": "EXT",
+      "location": "DINER PARKING LOT",
+      "time": "NIGHT",
+      "synopsis": "Puddles shimmer under a flickering streetlight.",
+      "characters": [
+        "MARISOL",
+        "LOU",
+        "DEV"
+      ],
+      "props": [],
+      "props_referenced": [
+        "MANILA ENVELOPE"
+      ],
+      "vehicles": [
+        "TAXI"
+      ],
+      "eighths": 2,
+      "pages": "2/8",
+      "strip": "ext-night"
+    },
+    {
+      "number": 3,
+      "heading": "INT. TAXI - MOVING - NIGHT",
+      "int_ext": "INT",
+      "location": "TAXI - MOVING",
+      "time": "NIGHT",
+      "synopsis": "Wipers thump a steady rhythm.",
+      "characters": [
+        "MARISOL",
+        "DEV"
+      ],
+      "props": [
+        "REARVIEW MIRROR"
+      ],
+      "props_referenced": [
+        "MANILA ENVELOPE"
+      ],
+      "vehicles": [
+        "TAXI"
+      ],
+      "eighths": 7,
+      "pages": "7/8",
+      "strip": "int-night"
+    },
+    {
+      "number": 4,
+      "heading": "INT. TAXI - PARKED - DAWN",
+      "int_ext": "INT",
+      "location": "TAXI - PARKED",
+      "time": "DAWN",
+      "synopsis": "The meter reads $47.50.",
+      "characters": [
+        "MARISOL",
+        "DEV"
+      ],
+      "props": [
+        "METER"
+      ],
+      "props_referenced": [],
+      "vehicles": [
+        "TAXI"
+      ],
+      "eighths": 3,
+      "pages": "3/8",
+      "strip": "dawn-dusk"
+    },
+    {
+      "number": 5,
+      "heading": "EXT. HARBOR BRIDGE - DAWN",
+      "int_ext": "EXT",
+      "location": "HARBOR BRIDGE",
+      "time": "DAWN",
+      "synopsis": "Wind off the water.",
+      "characters": [
+        "MARISOL",
+        "DEV",
+        "OLD MAN"
+      ],
+      "props": [
+        "TOWEL",
+        "RADIO HANDSET"
+      ],
+      "props_referenced": [
+        "MANILA ENVELOPE"
+      ],
+      "vehicles": [
+        "TAXI"
+      ],
+      "eighths": 4,
+      "pages": "4/8",
+      "strip": "dawn-dusk"
+    }
+  ]
+}
